@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Notification Viewer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script type="text/javascript">
+        var stompClient = null;
+
+        function connect() {
+            var socket = new SockJS('/ws'); // Connect to the WebSocket endpoint
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function(frame) {
+                console.log('Connected: ' + frame);
+                stompClient.subscribe('/topic/notifications', function(notification) {
+                    showNotification(notification.body);
+                });
+            });
+        }
+
+        function showNotification(message) {
+            var messages = document.getElementById('messages');
+            var messageElement = document.createElement('div');
+            messageElement.classList.add('notification');
+            messageElement.innerText = "Notification: " + message;
+            messages.appendChild(messageElement);
+        }
+
+        window.onload = connect; // Ensure the connection is made as soon as the window loads
+    </script>
+    <style>
+        #messages {
+            margin-top: 20px;
+        }
+        .notification {
+            margin: 5px;
+            padding: 10px;
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h2>WebSocket Notification Viewer</h2>
+    <div id="messages"></div>
+</body>
+</html>
